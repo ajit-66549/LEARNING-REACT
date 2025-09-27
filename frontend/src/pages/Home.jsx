@@ -25,9 +25,23 @@ function Home() {
     loadPopularMovies();
   }, []);
 
-  const handleSearch = (e) => {
+  const handleSearch = async (e) => {
     e.preventDefault(); //prevents default behavior like refreshing the page
-    alert(searchQuery);
+    
+    if (!searchQuery.trim()) return
+    if (loading) return
+
+    setLoading(true)
+    try {
+      const searchResults = await searchMovies(searchQuery)
+        setMovies(searchResults)
+        setError(null)
+    } catch (err) {
+        console.log(err)
+        setError("Failed to search movies.....")
+    } finally {
+        setLoading(false)
+    }
   };
 
   return (
@@ -52,8 +66,7 @@ function Home() {
       ) : (
         <div className="movies-grid">
           {movies.map(
-            (movie) =>
-              movie.title.toLowerCase().startsWith(searchQuery) && (
+            (movie) => (
                 <MovieCard movie={movie} key={movie.id} />
               )
           )}
